@@ -13,13 +13,33 @@ import lex.*;
 * janvier 2025
 */
 public class ActVin extends AutoVin {
+	/** indice courant du nombre de chauffeurs dans le tableau tabChauf */
+	private int indChauf ;
+	/** indice courant de la qualité du vin dans le tableau tabIdent */
+	private int indQual;
+	/** capacité courante */
+	private int capacite;
+	/** quantités tampon a ajouter une fois que la fiche est correcte */
+	private int quantTmpBJ;
+	private int quantTmpBG;
+	private int quantTmpOR;
+	/**nombre de fiche traitées et nombre de fiche correcte */
+	private int ficheCorrectes;
+	private int ficheTraitees;
+	/**chauffeur ayant livré le plus de magasins*/
+	private int indBestChauf;
 
     /** table des actions */
     private final int[][] ACTION =
     {/* Etat        BJ    BG   IDENT  NBENT VIRG PTVIRG BARRE AUTRES  */
-	/* 0 */      { -1,   -1,   -1,    -1,   -1,   -1,   -1,   -1   },
-	/* 1 */      { -1,   -1,   -1,    -1,   -1,   -1,   -1,   -1   },
-	/*!!! TODO !!!*/
+	/* 0 */      { -1,   -1,    1,    -1,   -1,   -1,   -1,   -1   },
+	/* 1 */      {  3,    3,    3,     2,   -1,   -1,   -1,   -1   },
+	/* 2 */      {  3,    3,   -1,    -1,   -1,   -1,   -1,   -1   },
+	/* 3 */      { -1,   -1,    5,    -1,   -1,   -1,   -1,   -1   },
+	/* 4 */      { -1,   -1,   -1,     6,   -1,   -1,   -1,   -1   },
+	/* 5 */      { -1,   -1,    5,    -1,   -1,    7,   -1,   -1   },
+	/* 6 */      { -1,   -1,   -1,    -1,   -1,    9,   10,   -1   },
+	
 	/* Rappel conventions :  action -1 = action vide, pas de ligne pour etatFinal */
     } ;	       
     
@@ -135,9 +155,6 @@ public class ActVin extends AutoVin {
 	} 
 	
 	
-	/** indice courant du nombre de chauffeurs dans le tableau tabChauf */
-	private int indChauf ;
-	/*!!! TODO : DELARATIONS A COMPLETER !!!*/
 
 	
 	/**
@@ -145,7 +162,14 @@ public class ActVin extends AutoVin {
 	 */
 	private void initialisations() {
 		indChauf = -1;
-		/*!!! TODO : A COMPLETER SI BESOIN !!!*/
+		indQual = -1;
+		quantTmpBG = 0;
+		quantTmpBJ = 0;
+		quantTmpOR = 0;
+		capacite = 100;
+		ficheCorrectes = 0;
+		ficheTraitees = 0;
+		indBestChauf = 0;
 	} 
 	
 
@@ -158,10 +182,117 @@ public class ActVin extends AutoVin {
 		switch (numAct) {
 		case -1:	// action vide
 			break;
-		/*!!! TODO !!!*/
+		case 1 : 
+			setIndChauf();
+			break;
+		case 2 :
+			verifCapacite();
+			break;
+		case 3 : 
+			setIndQual();
+			break;
+		case 5:
+			addMagToChauff();
+			break;
+		case 6 :
+			addQtATmp();
+			break;
+		case 7 :
+			incrFicheCor();
+			incrFicheTrait();
+			ajouterQtTmpChauff();
+			break;
+		case 8 :
+			setBestChauf();
+			printFichesEtBestChauff();
+			break;
+		case 9 :
+			incrFicheTrait();
+			break;
+		case 10 :
+			incrFicheTrait();
+			setBestChauf();
+			printFichesEtBestChauff();
+			break;
+		
 		default:
 			Lecture.attenteSurLecture("action " + numAct + " non prevue");
 		}
-	} 
+	}
 
-} 
+	/**action 1*/
+	private void setIndChauf(){ 
+		indChauf = numIdCourant();
+	}
+
+	/**action 2*/
+	private void verifCapacite(){
+		int cap = valEnt();
+		if (cap>100 || cap<200){
+			capacite = cap;
+		} else {
+			System.out.println("Capacité de la citerne de " + ((LexVin)analyseurLexical).chaineIdent(tabChauf[indChauf].numChauf) + "forcée à 100.");
+		}
+	}
+
+	/**action 3*/
+	private void setIndQual(){
+		indQual = numIdCourant();
+	}
+
+	/**action 5*/
+	private void addMagToChauff(){
+		tabChauf[indChauf].magDif.add(numIdCourant());
+	}
+
+	/**action 6 (ajoute le nombre lu a la quantité tempon correspondante) */
+	private void addQtATmp(){
+		if(indQual==0){
+			quantTmpBJ += valEnt();
+		} else if(indQual == 1){
+			quantTmpBG += valEnt();
+		} else {
+			quantTmpOR += valEnt();
+		}
+	}
+
+	/**action 7*/
+	private void incrFicheCor(){
+		ficheCorrectes ++;
+	}
+
+	/**action 7 et 9*/
+	private void incrFicheTrait(){
+		ficheTraitees ++;
+	}
+
+	/** action 7*/
+	private void ajouterQtTmpChauff(){
+		tabChauf[indChauf].bg += quantTmpBG;
+		tabChauf[indChauf].bj += quantTmpBJ;
+		tabChauf[indChauf].ordin += quantTmpOR;
+
+		quantTmpBG = 0;
+		quantTmpBJ = 0;
+		quantTmpOR = 0;
+	}
+
+	/**action 8*/
+	private void setBestChauf(){
+		int nbMag = 0;
+		for (int i = 0; i < tabChauf.length; i++) {
+			if (tabChauf[i].magDif.size()>nbMag){
+				nbMag = tabChauf[i].magDif.size();
+				indBestChauf = tabChauf[i].numChauf;
+			}
+		}
+	}
+
+	/**action 8 et 10*/
+	private void printFichesEtBestChauff(){
+		System.out.println("Fiches correctes : " + ficheCorrectes + " - Nombre total de fiches : " + ficheTraitees);
+		System.out.println(tabChauf[indBestChauf]+" a livré "+tabChauf[indBestChauf].magDif.size()+" magasins différents");
+	}
+
+}
+

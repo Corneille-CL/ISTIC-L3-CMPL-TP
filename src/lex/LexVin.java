@@ -2,7 +2,7 @@ package lex;
 
 /**
  * La classe LexVin implemente un analyseur lexical pour une application de livraison de vin
- * @author ?? MERCI DE PRECISER LE NOM DU TRINOME TODO
+ * @author EL AROUSSI, HANINE, LEFFONDRE
  * janvier 2025
  */
 
@@ -49,7 +49,7 @@ public class LexVin extends Lex {
 	public LexVin(InputStream flot) {
 		// Initialisation du flot par la classe abstraite
 		super(flot);
-		System.out.println("Trinome EL AROUSSi HANINE LEFFONDRE"); // TODO : maj avec vos noms
+		System.out.println("Trinome EL AROUSSi HANINE LEFFONDRE");
 		System.out.println("--------------");
 
 		// Prelecture du premier caractere de la donnee
@@ -92,7 +92,6 @@ public class LexVin extends Lex {
 		for (int i = 0; i<tabIdent.size(); i++) {
 			if(s.compareTo(tabIdent.get(i)) == 0) {// Ident est déja dans le tableau
 				if(i < 2) {// Ident est Bourgogne ou beaujolais
-					numIdCourant = i;
 					return i;
 				} else {
 					numIdCourant = i;
@@ -103,7 +102,6 @@ public class LexVin extends Lex {
 			tabIdent.add(s);
 			numIdCourant = tabIdent.size()-1;
 		}
-		System.out.println(tabIdent.get(numIdCourant));
 		
 		return IDENT;
 	}
@@ -160,7 +158,12 @@ public class LexVin extends Lex {
 	 * @return chaine correspondant a numIdent
 	 */
 	public String chaineIdent(int numIdent) {
-		return tabIdent.get(numIdent);
+		if(numIdent < tabIdent.size()){
+			return tabIdent.get(numIdent);
+		} else {
+			return "numIdent out of bound";
+		}
+		
 	}
 
 	/** utilitaire de test de l'analyseur lexical seul (sans analyse syntaxique) */
