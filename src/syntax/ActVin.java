@@ -32,6 +32,8 @@ public class ActVin extends AutoVin {
 	private int ficheTraitees;
 	/**chauffeur ayant livré le plus de magasins*/
 	private int indBestChauf;
+	private int volumeTransporte;
+
 
     /** table des actions */
     private final int[][] ACTION =
@@ -176,7 +178,9 @@ public class ActVin extends AutoVin {
 		ficheCorrectes = 0;
 		ficheTraitees = 0;
 		indBestChauf = 0;
+		volumeTransporte = 0;
 		tabChauf = new Chauffeur[MAXCHAUF];
+
 		for (int i = 0; i < MAXCHAUF; i++) {
 			tabChauf[i] = new Chauffeur(-1,0,0,0, new TreeSet<Integer>());
 		}
@@ -242,22 +246,26 @@ public class ActVin extends AutoVin {
 	/**action 1*/
 	private void setIndChauf(){
 		int i = 0;
-		while (tabChauf[i].numChauf != -1 && i < MAXCHAUF) {
+		while (i < MAXCHAUF && tabChauf[i].numChauf != -1) {
 			if (tabChauf[i].numChauf == numIdCourant()) {
 				indChauf = i;
 				return;
 			}
 			i++;
 		}
-		indChaufMax = i;
-		tabChauf[i].numChauf = numIdCourant();
-		indChauf = i;
+		if(i >= 10){
+			erreur(FATALE, "Nombre de chaffeur max dépassé");
+		} else {
+			indChaufMax = i;
+			tabChauf[i].numChauf = numIdCourant();
+			indChauf = i;
+		}
 	}
 
 	/**action 2*/
 	private void verifCapacite(){
 		int cap = valEnt();
-		if (cap>100 && cap<200){
+		if (cap>100 && cap<=200){
 			capacite = cap;
 		} else {
 			System.out.println("Capacité de la citerne de " + ((LexVin)analyseurLexical).chaineIdent(tabChauf[indChauf].numChauf) + "forcée à 100.");
@@ -286,6 +294,7 @@ public class ActVin extends AutoVin {
 
 	/**action 6 (ajoute le nombre lu a la quantité tempon correspondante) */
 	private void addQtATmp(){
+		volumeTransporte += valEnt();
 		if(indQual==0){
 			quantTmpBJ += valEnt();
 		} else if(indQual == 1){
@@ -307,6 +316,12 @@ public class ActVin extends AutoVin {
 
 	/** action 7*/
 	private void ajouterQtTmpChauff(){
+		if(capacite<volumeTransporte){
+			erreur(NONFATALE, "Volume transporté supérieur à la capacité");
+		}
+		if(quantTmpBG + quantTmpBJ + quantTmpOR == 0){
+			erreur(NONFATALE, "Volume transporté egal à 0");
+		}
 		tabChauf[indChauf].bg += quantTmpBG;
 		tabChauf[indChauf].bj += quantTmpBJ;
 		tabChauf[indChauf].ordin += quantTmpOR;
@@ -314,6 +329,7 @@ public class ActVin extends AutoVin {
 		quantTmpBG = 0;
 		quantTmpBJ = 0;
 		quantTmpOR = 0;
+		volumeTransporte =0;
 	}
 
 	/**action 8*/

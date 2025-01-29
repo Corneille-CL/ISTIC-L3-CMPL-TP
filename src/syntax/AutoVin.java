@@ -30,7 +30,6 @@ public class AutoVin extends Automate{
 		/* 4 */      {  6,   6,    6,     5,    6,    6,    6,    6   },
 		/* 5 */      {  6,   6,    4,     6,    2,    0,    6,    6   },
 		/* 6 */      {  6,   6,    6,     6,    6,    0,    7,    6   },
-		/* 7 */      {  7,   7,    7,     7,    7,    7,    7,    7   },
 
 	 	
 	 	/* Rappel conventions :  etatErreur = TRANSIT.length - 1 et pas de ligne pour etatFinal */
