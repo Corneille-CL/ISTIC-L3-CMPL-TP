@@ -2,13 +2,15 @@ package syntax;
 
 import java.io.*;
 import utils.*;
-import lex.*;
+import lexEns.*;
 
 /**
  * La classe AutoVin met en oeuvre l'automate d'analyse syntaxique de distribution de vin
  * Realisation par interpreteur de tables
  * 
- * @author ?? MERCI DE PRECISER LE NOM DU TRINOME ?? TODO
+ * @author El Aroussi
+ * @author Hanine
+ * @author Leffondre
  * janvier 2025
  * 
  */
@@ -23,12 +25,12 @@ public class AutoVin extends Automate{
 		{/* Etat        BJ   BG   IDENT  NBENT VIRG PTVIRG BARRE AUTRES  */
 	 	/* 0 */      {  6,   6,    1,     6,    6,    6,    7,    6   },
 	 	/* 1 */      {  3,   3,    4,     2,    6,    6,    6,    6   },
-		/* 2 */      {  3,   3,    6,     6,    6,    6,    6,    6   },
+		/* 2 */      {  3,   3,    4,     6,    6,    6,    6,    6   },
 		/* 3 */      {  6,   6,    4,     6,    6,    6,    6,    6   },
 		/* 4 */      {  6,   6,    6,     5,    6,    6,    6,    6   },
-		/* 5 */      {  6,   6,    6,     6,    2,    0,    6,    6   },
+		/* 5 */      {  6,   6,    4,     6,    2,    0,    6,    6   },
 		/* 6 */      {  6,   6,    6,     6,    6,    0,    7,    6   },
-		/* 7 */      {  6,   6,    6,     6,    6,    6,    6,    6   },
+		/* 7 */      {  7,   7,    7,     7,    7,    7,    7,    7   },
 
 	 	
 	 	/* Rappel conventions :  etatErreur = TRANSIT.length - 1 et pas de ligne pour etatFinal */
@@ -67,8 +69,8 @@ public class AutoVin extends Automate{
 	}
 
 	// ici les methodes liées aux action ne sont pas encore définies.
-	void faireAction(int etat, int itemLex) {};
-	void initAction() {};	
-	int getAction(int etat, int itemLex) {return 0;};
+	void faireAction(int etat, int itemLex) {}
+	void initAction() {}
+	int getAction(int etat, int itemLex) {return 0;}
 		
 }

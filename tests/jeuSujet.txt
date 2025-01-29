@@ -1,6 +1,6 @@
 DURAND 120
 
-  BE!AU5JOLAIS     vieillesgaleries 50  prixmultiples 70 ,
+  BEAUJOLAIS     vieillesgaleries 50  prixmultiples 70 elephant 10,
 
   prixmultiples 110,
 
@@ -22,4 +22,3 @@ DURAND
   elephant 90;
 
  /
-tests/jeuSujet.txt

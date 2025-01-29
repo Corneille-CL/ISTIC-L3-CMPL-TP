@@ -1,8 +1,10 @@
 package syntax;
 
 import java.io.InputStream;
+import java.util.TreeSet;
+
 import utils.*;
-import lex.*;
+import lexEns.*;
 
 /**
 * La classe ActVin met en oeuvre les actions de l'automate d'analyse syntaxique de l'application Vin
@@ -14,7 +16,9 @@ import lex.*;
 */
 public class ActVin extends AutoVin {
 	/** indice courant du nombre de chauffeurs dans le tableau tabChauf */
-	private int indChauf ;
+	private int indChaufMax;
+	/** indice du chauffeur courant*/
+	private int indChauf;
 	/** indice courant de la qualité du vin dans le tableau tabIdent */
 	private int indQual;
 	/** capacité courante */
@@ -32,13 +36,15 @@ public class ActVin extends AutoVin {
     /** table des actions */
     private final int[][] ACTION =
     {/* Etat        BJ    BG   IDENT  NBENT VIRG PTVIRG BARRE AUTRES  */
-	/* 0 */      { -1,   -1,    1,    -1,   -1,   -1,   -1,   -1   },
-	/* 1 */      {  3,    3,    3,     2,   -1,   -1,   -1,   -1   },
-	/* 2 */      {  3,    3,   -1,    -1,   -1,   -1,   -1,   -1   },
+	/* 0 */      { -1,   -1,    1,    -1,   -1,   -1,    8,   -1   },
+	/* 1 */      {  3,    4,   11,     2,   -1,   -1,   -1,   -1   },
+	/* 2 */      {  3,    4,   11,    -1,   -1,   -1,   -1,   -1   },
 	/* 3 */      { -1,   -1,    5,    -1,   -1,   -1,   -1,   -1   },
 	/* 4 */      { -1,   -1,   -1,     6,   -1,   -1,   -1,   -1   },
 	/* 5 */      { -1,   -1,    5,    -1,   -1,    7,   -1,   -1   },
 	/* 6 */      { -1,   -1,   -1,    -1,   -1,    9,   10,   -1   },
+	/* 7 */      { -1,   -1,   -1,    -1,   -1,    -1,  -1,   -1   },
+
 	
 	/* Rappel conventions :  action -1 = action vide, pas de ligne pour etatFinal */
     } ;	       
@@ -121,7 +127,7 @@ public class ActVin extends AutoVin {
 	/** nombre maximum de chauffeurs */
 	private static final int MAXCHAUF = 10;
 	/** tableau des chauffeurs et resume des livraison de chacun */
-	private Chauffeur[] tabChauf = new Chauffeur[MAXCHAUF];
+	private Chauffeur[] tabChauf;
 	
 	
 	/** utilitaire d'affichage a l'ecran 
@@ -143,7 +149,7 @@ public class ActVin extends AutoVin {
 		String titre = "CHAUFFEUR                   BJ        BG       ORD     NBMAG\n"
 				+ "---------                   --        --       ---     -----";
 		Ecriture.ecrireStringln(titre);
-		for (int i = 0; i <= indChauf; i++) {
+		for (int i = 0; i <= indChaufMax; i++) {
 			String idChaufCourant = ((LexVin)analyseurLexical).chaineIdent(tabChauf[i].numChauf);
 			Ecriture.ecrireString(chaineCadrageGauche(idChaufCourant));
 			Ecriture.ecrireInt(tabChauf[i].bj, 10);
@@ -170,15 +176,18 @@ public class ActVin extends AutoVin {
 		ficheCorrectes = 0;
 		ficheTraitees = 0;
 		indBestChauf = 0;
+		tabChauf = new Chauffeur[MAXCHAUF];
+		for (int i = 0; i < MAXCHAUF; i++) {
+			tabChauf[i] = new Chauffeur(-1,0,0,0, new TreeSet<Integer>());
+		}
 	} 
 	
 
 	/**
 	 * execution d'une action
-	 * @param numact numero de l'action a executer
+	 * @param numAct numero de l'action a executer
 	 */
 	public void executer(int numAct) {
-
 		switch (numAct) {
 		case -1:	// action vide
 			break;
@@ -189,7 +198,13 @@ public class ActVin extends AutoVin {
 			verifCapacite();
 			break;
 		case 3 : 
-			setIndQual();
+			setIndQualBJ();
+			break;
+		case 4 :
+			setIndQualBG();
+			break;
+		case 11 :
+			setIndQualOR();
 			break;
 		case 5:
 			addMagToChauff();
@@ -201,17 +216,21 @@ public class ActVin extends AutoVin {
 			incrFicheCor();
 			incrFicheTrait();
 			ajouterQtTmpChauff();
+			afficherChauf();
 			break;
 		case 8 :
 			setBestChauf();
+			afficherChauf();
 			printFichesEtBestChauff();
 			break;
 		case 9 :
 			incrFicheTrait();
+			afficherChauf();
 			break;
 		case 10 :
 			incrFicheTrait();
 			setBestChauf();
+			afficherChauf();
 			printFichesEtBestChauff();
 			break;
 		
@@ -221,14 +240,24 @@ public class ActVin extends AutoVin {
 	}
 
 	/**action 1*/
-	private void setIndChauf(){ 
-		indChauf = numIdCourant();
+	private void setIndChauf(){
+		int i = 0;
+		while (tabChauf[i].numChauf != -1 && i < MAXCHAUF) {
+			if (tabChauf[i].numChauf == numIdCourant()) {
+				indChauf = i;
+				return;
+			}
+			i++;
+		}
+		indChaufMax = i;
+		tabChauf[i].numChauf = numIdCourant();
+		indChauf = i;
 	}
 
 	/**action 2*/
 	private void verifCapacite(){
 		int cap = valEnt();
-		if (cap>100 || cap<200){
+		if (cap>100 && cap<200){
 			capacite = cap;
 		} else {
 			System.out.println("Capacité de la citerne de " + ((LexVin)analyseurLexical).chaineIdent(tabChauf[indChauf].numChauf) + "forcée à 100.");
@@ -236,8 +265,18 @@ public class ActVin extends AutoVin {
 	}
 
 	/**action 3*/
-	private void setIndQual(){
-		indQual = numIdCourant();
+	private void setIndQualBJ(){
+		indQual = 0;
+	}
+
+	/**action 3*/
+	private void setIndQualBG(){
+		indQual = 1;
+	}
+
+	/**action 11*/
+	private void setIndQualOR(){
+		indQual = 2;
 	}
 
 	/**action 5*/
@@ -283,7 +322,7 @@ public class ActVin extends AutoVin {
 		for (int i = 0; i < tabChauf.length; i++) {
 			if (tabChauf[i].magDif.size()>nbMag){
 				nbMag = tabChauf[i].magDif.size();
-				indBestChauf = tabChauf[i].numChauf;
+				indBestChauf = i;
 			}
 		}
 	}
@@ -291,7 +330,7 @@ public class ActVin extends AutoVin {
 	/**action 8 et 10*/
 	private void printFichesEtBestChauff(){
 		System.out.println("Fiches correctes : " + ficheCorrectes + " - Nombre total de fiches : " + ficheTraitees);
-		System.out.println(tabChauf[indBestChauf]+" a livré "+tabChauf[indBestChauf].magDif.size()+" magasins différents");
+		System.out.println(((LexVin)analyseurLexical).chaineIdent(tabChauf[indBestChauf].numChauf)+" a livré "+tabChauf[indBestChauf].magDif.size()+" magasins différents");
 	}
 
 }
