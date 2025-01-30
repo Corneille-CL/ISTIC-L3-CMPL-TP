@@ -1,6 +1,6 @@
 DURAND 120
 
-  BEAUJOLAIS     vieillesgaleries 50  prixmultiples 70 elephant 10,
+  BEAUJOLAIS     vieillesgaleries 40  prixmultiples 70 elephant 10,
 
   prixmultiples 110,
 
@@ -9,7 +9,7 @@ DURAND 120
 
 DUPONT   110
 
-  BOURGOGNE      croisement 70 superv 40;
+  BOURGOGNE      croisement 70 superv 20;
 
 
 POTIN  140
@@ -22,3 +22,5 @@ DURAND
   elephant 90;
 
  /
+
+ Jeu de base

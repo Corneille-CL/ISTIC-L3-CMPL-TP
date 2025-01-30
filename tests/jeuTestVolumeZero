@@ -1,0 +1,26 @@
+DURAND 120
+
+  BEAUJOLAIS     vieillesgaleries 0  prixmultiples 0 elephant 0,
+
+  prixmultiples 120,
+
+  BOURGOGNE      potin 10 vieillesgaleries 10 elephant 10;
+
+
+DUPONT   110
+
+  BOURGOGNE      croisement 70 superv 40;
+
+
+POTIN  140
+
+  BEAUJOLAIS     potin 90 ;
+
+
+DURAND
+
+  elephant 90;
+
+ /
+
+Le volume transporté est nul.

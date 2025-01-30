@@ -1,6 +1,7 @@
 package syntax;
 
 import java.io.InputStream;
+import java.util.Set;
 import java.util.TreeSet;
 
 import utils.*;
@@ -10,7 +11,7 @@ import lexEns.*;
 * La classe ActVin met en oeuvre les actions de l'automate d'analyse syntaxique de l'application Vin
 *  des fiches de livraison de vin
 * 
-* @author ?? MERCI DE PRECISER LE NOM DU TRINOME ?? TODO
+* @author ?? MERCI DE PRECISER LE NOM DU TRINOME ??
 * 
 * janvier 2025
 */
@@ -33,6 +34,7 @@ public class ActVin extends AutoVin {
 	/**chauffeur ayant livré le plus de magasins*/
 	private int indBestChauf;
 	private int volumeTransporte;
+	private TreeSet<Integer> magVisitesTmp;
 
 
     /** table des actions */
@@ -43,9 +45,8 @@ public class ActVin extends AutoVin {
 	/* 2 */      {  3,    4,   11,    -1,   -1,   -1,   -1,   -1   },
 	/* 3 */      { -1,   -1,    5,    -1,   -1,   -1,   -1,   -1   },
 	/* 4 */      { -1,   -1,   -1,     6,   -1,   -1,   -1,   -1   },
-	/* 5 */      { -1,   -1,    5,    -1,   -1,    7,   -1,   -1   },
+	/* 5 */      { -1,   -1,    5,    -1,   12,    7,   -1,   -1   },
 	/* 6 */      { -1,   -1,   -1,    -1,   -1,    9,   10,   -1   },
-	/* 7 */      { -1,   -1,   -1,    -1,   -1,    -1,  -1,   -1   },
 
 	
 	/* Rappel conventions :  action -1 = action vide, pas de ligne pour etatFinal */
@@ -179,6 +180,7 @@ public class ActVin extends AutoVin {
 		ficheTraitees = 0;
 		indBestChauf = 0;
 		volumeTransporte = 0;
+		magVisitesTmp = new TreeSet<Integer>();
 		tabChauf = new Chauffeur[MAXCHAUF];
 
 		for (int i = 0; i < MAXCHAUF; i++) {
@@ -207,9 +209,6 @@ public class ActVin extends AutoVin {
 		case 4 :
 			setIndQualBG();
 			break;
-		case 11 :
-			setIndQualOR();
-			break;
 		case 5:
 			addMagToChauff();
 			break;
@@ -221,6 +220,7 @@ public class ActVin extends AutoVin {
 			incrFicheTrait();
 			ajouterQtTmpChauff();
 			afficherChauf();
+			verifCapaciteDepassee();
 			break;
 		case 8 :
 			setBestChauf();
@@ -228,6 +228,8 @@ public class ActVin extends AutoVin {
 			printFichesEtBestChauff();
 			break;
 		case 9 :
+			verifCapaciteDepassee();
+			resetQtTMP();
 			incrFicheTrait();
 			afficherChauf();
 			break;
@@ -236,6 +238,13 @@ public class ActVin extends AutoVin {
 			setBestChauf();
 			afficherChauf();
 			printFichesEtBestChauff();
+			break;
+		case 11 :
+			addMagToChauff();
+			setIndQualOR();
+			break;
+		case 12 :
+			verifCapaciteDepassee();
 			break;
 		
 		default:
@@ -289,7 +298,7 @@ public class ActVin extends AutoVin {
 
 	/**action 5*/
 	private void addMagToChauff(){
-		tabChauf[indChauf].magDif.add(numIdCourant());
+		magVisitesTmp.add(numIdCourant());
 	}
 
 	/**action 6 (ajoute le nombre lu a la quantité tempon correspondante) */
@@ -316,9 +325,6 @@ public class ActVin extends AutoVin {
 
 	/** action 7*/
 	private void ajouterQtTmpChauff(){
-		if(capacite<volumeTransporte){
-			erreur(NONFATALE, "Volume transporté supérieur à la capacité");
-		}
 		if(quantTmpBG + quantTmpBJ + quantTmpOR == 0){
 			erreur(NONFATALE, "Volume transporté egal à 0");
 		}
@@ -329,7 +335,9 @@ public class ActVin extends AutoVin {
 		quantTmpBG = 0;
 		quantTmpBJ = 0;
 		quantTmpOR = 0;
-		volumeTransporte =0;
+
+		tabChauf[indChauf].magDif.addAll(Set.copyOf(magVisitesTmp));
+		magVisitesTmp.clear();
 	}
 
 	/**action 8*/
@@ -347,6 +355,22 @@ public class ActVin extends AutoVin {
 	private void printFichesEtBestChauff(){
 		System.out.println("Fiches correctes : " + ficheCorrectes + " - Nombre total de fiches : " + ficheTraitees);
 		System.out.println(((LexVin)analyseurLexical).chaineIdent(tabChauf[indBestChauf].numChauf)+" a livré "+tabChauf[indBestChauf].magDif.size()+" magasins différents");
+	}
+
+	/**action 9 */
+	private void resetQtTMP(){
+		quantTmpBG = 0;
+		quantTmpBJ = 0;
+		quantTmpOR = 0;
+		magVisitesTmp.clear();
+	}
+
+	/**action 12*/
+	private void verifCapaciteDepassee(){
+		if(capacite<volumeTransporte){
+			erreur(NONFATALE, "Volume transporté supérieur à la capacité");
+		}
+		volumeTransporte = 0;
 	}
 
 }

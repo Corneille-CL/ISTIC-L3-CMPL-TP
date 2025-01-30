@@ -1,0 +1,58 @@
+DURAND 200
+
+  BEAUJOLAIS     vieillesgaleries 50  prixmultiples 70 elephant 10,
+
+  prixmultiples 110,
+
+  BOURGOGNE      potin 50 vieillesgaleries 40 elephant 10;
+
+
+DUPONT   200
+
+  BOURGOGNE      croisement 70 superv 40;
+
+
+POTIN  140
+
+  BEAUJOLAIS     potin 90 ;
+
+
+DURAND
+
+  elephant 90;
+
+LESVENTE
+
+  elephant 90;
+
+HANINE
+
+  elephant 90;
+
+SMITH
+
+  elephant 90;
+
+LEFF
+
+  elephant 90;
+
+ELAROUSSI
+
+  elephant 90;
+
+PERRAUDEAU
+
+  elephant 90;
+
+PINCHINAT
+
+  elephant 100;
+
+MASSON
+
+  elephant 90;
+
+ /
+
+Test avec 11 chauffeurs différents : il y a une erreur FATALE
